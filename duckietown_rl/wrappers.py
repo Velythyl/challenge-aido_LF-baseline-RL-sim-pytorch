@@ -4,7 +4,7 @@ import numpy as np
 
 
 class ResizeWrapper(gym.ObservationWrapper):
-    def __init__(self, env=None, shape=(64, 64, 3)):
+    def __init__(self, env=None, shape=(120, 160, 3)):
         super(ResizeWrapper, self).__init__(env)
         self.observation_space.shape = shape
         self.observation_space = spaces.Box(
@@ -16,7 +16,12 @@ class ResizeWrapper(gym.ObservationWrapper):
 
     def observation(self, observation):
         from PIL import Image
-        return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
+
+        temp = []
+        for obs in observation:
+            temp.append(np.array(Image.fromarray(obs).resize(self.shape[0:2])))
+
+        return np.array(temp)
     
 
 class NormalizeWrapper(gym.ObservationWrapper):
@@ -45,22 +50,29 @@ class ImgWrapper(gym.ObservationWrapper):
             dtype=self.observation_space.dtype)
 
     def observation(self, observation):
-        return observation.transpose(2, 0, 1)
+        temp = []
+        for obs in observation:
+            temp.append(obs.transpose(2, 0, 1))
+
+        return np.array(temp)
 
 
 class DtRewardWrapper(gym.RewardWrapper):
     def __init__(self, env):
         super(DtRewardWrapper, self).__init__(env)
 
-    def reward(self, reward):
-        if reward == -1000:
-            reward = -10
-        elif reward > 0:
-            reward += 10
-        else:
-            reward += 4
+    def reward(self, rewards):
+        ret = []
+        for reward in rewards:
+            if reward == -1000:
+                reward = -10
+            elif reward > 0:
+                reward += 10
+            else:
+                reward += 4
+            ret.append(reward)
 
-        return reward
+        return ret
 
 
 # this is needed because at max speed the duckie can't turn anymore
@@ -69,8 +81,9 @@ class ActionWrapper(gym.ActionWrapper):
         super(ActionWrapper, self).__init__(env)
 
     def action(self, action):
-        action_ = [action[0], action[1]]
-        return action_
+        action = np.copy(np.array(action))
+        action[:,0] *= 0.8
+        return action
 
 
 class SteeringToWheelVelWrapper(gym.ActionWrapper):

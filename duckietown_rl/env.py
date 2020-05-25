@@ -1,11 +1,14 @@
 import gym
 import gym_duckietown
+from gym_duckietown.envs import DuckietownEnv
+from gym_duckietown.envs.duckietown_env import DuckietownLF
+from gym_duckietown.multiagent import MultiagentSimulator
+from gym_duckietown.simulator import Simulator
 
 def launch_env(id=None):
     env = None
     if id is None:
-        from gym_duckietown.simulator import Simulator
-        env = Simulator(
+        env = MultiagentSimulator(
             seed=123, # random seed
             map_name="loop_empty",
             max_steps=500001, # we don't want the gym to reset itself
@@ -15,6 +18,7 @@ def launch_env(id=None):
             accept_start_angle_deg=4, # start close to straight
             full_transparency=True,
             distortion=True,
+            nb_agents=1
         )
     else:
         env = gym.make(id)
