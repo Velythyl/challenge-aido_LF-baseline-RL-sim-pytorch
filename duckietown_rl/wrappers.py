@@ -15,8 +15,24 @@ class ResizeWrapper(gym.ObservationWrapper):
             dtype=self.observation_space.dtype)
         self.shape = shape
 
+    def display(self, img1, img2, img3):
+        from PIL import Image
+        Image.fromarray(img1).save("./full_img.png", "PNG")
+        img2.save("./64x64.png", "PNG")
+        img3.save("./32x32.png", "PNG")
+
     def observation(self, observation):
         from PIL import Image
+
+        self.display(
+            observation,
+            Image.fromarray(observation).resize((64, 64, 3)[0:2]),
+            Image.fromarray(observation).resize((32, 32, 3)[0:2])
+        )
+
+        exit()
+
+
         return np.array(Image.fromarray(observation).resize(self.shape[0:2]))
 
 class FilterWrapper(gym.ObservationWrapper):
