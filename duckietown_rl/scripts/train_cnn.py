@@ -81,7 +81,6 @@ env = launch_env()
 
 # Wrappers
 env = ResizeWrapper(env, ((120, 160, 3) if use_large else (64, 64, 3)))
-#env = FilterWrapper(env)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
@@ -94,21 +93,10 @@ state_dim = env.observation_space.shape
 action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
 
-
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn", use_large=use_large)
 
 replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
-policy, replay_buffer = warmup(policy, replay_buffer, args, env, file_name)
-
-import tracemalloc
-tracemalloc.start()
-def tracemalloc_ss():
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    for stat in top_stats[:10]:
-        print(stat)
-
 
 # Evaluate untrained policy
 evaluations= [evaluate_policy(env, policy)]
@@ -128,10 +116,7 @@ while total_timesteps < args.max_timesteps:
             print("Replay buffer length is ", len(replay_buffer.storage))   #TODO rm
             print(("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (
                 total_timesteps, episode_num, episode_timesteps, episode_reward))
-            #mem_logging()
-            #with mem_log():
-            #    policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
-            #tracemalloc_ss()
+            policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 
         # Evaluate episode
         if timesteps_since_eval >= args.eval_freq:
