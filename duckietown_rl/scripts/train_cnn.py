@@ -45,6 +45,7 @@ if args.save_models and not os.path.exists("./pytorch_models"):
     os.makedirs("./pytorch_models")
 
 env = launch_env()
+print("HERE!")
 
 # Set seeds
 seed(args.seed)
@@ -111,10 +112,6 @@ while total_timesteps < args.max_timesteps:
 
     # Perform action
     new_obs, reward, done, _ = env.step(action)
-    if action[0] < 0.001:   #Penalise slow actions: helps the bot to figure out that going straight > turning in circles
-        if reward > 0:
-            reward *= -1
-        reward *= 2
 
     if episode_timesteps >= args.env_timesteps:
         done = True

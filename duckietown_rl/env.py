@@ -6,8 +6,8 @@ from wrappers import NormalizeWrapper, ImgWrapper, \
 def launch_env(id=None):
     env = None
     if id is None:
-        from gym_duckietown.simulator import Simulator
-        env = Simulator(
+        from gym_duckietown.envs.duckietown_env import DuckietownLF
+        env = DuckietownLF(
             seed=123,  # random seed
             map_name="loop_empty",
             max_steps=500001,  # we don't want the gym to reset itself
@@ -25,8 +25,8 @@ def launch_env(id=None):
     env = ResizeWrapper(env)
     env = NormalizeWrapper(env)
     env = ImgWrapper(env)  # to make the images from 160x120x3 into 3x160x120
-    env = SteeringToWheelVelWrapper(env)
+    #env = SteeringToWheelVelWrapper(env)
     env = ActionWrapper(env)
-    #env = DtRewardWrapper(env)
+    env = DtRewardWrapper(env)
 
     return env
