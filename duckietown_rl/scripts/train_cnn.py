@@ -113,6 +113,9 @@ while total_timesteps < args.max_timesteps:
     # Perform action
     new_obs, reward, done, _ = env.step(action)
 
+    if action[0] < 0.1:
+        reward = -5
+
     if episode_timesteps >= args.env_timesteps:
         done = True
 
